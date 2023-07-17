@@ -37,10 +37,8 @@ class ProductListController extends Controller
                 $product['size'] = (Size::where('id', $size_id)->first())['size_value'];
                 $product['color'] = (Color::where('id', $color_id)->first())['color_name'];
             }
+
             return view('welcome', compact('products', 'categories', 'sizes', 'colors', 'brands'));
-//        return response()->json(['data'=>view('filteredProducts', compact('products', 'categories', 'sizes', 'colors', 'brands'))->render()]);
-
-
     }
 
     public function filteredProducts(Request $request)
@@ -155,35 +153,6 @@ class ProductListController extends Controller
             $products = Product::where('product_name','like','%'.$request->searchItem.'%')->with(['productEntries', 'images'])->get();
             return $products;
         }
-//    public function products(){
-//
-//        $sizes = Size::all();
-//        $categories = ProductCategory::all();
-//        $colors = Color::all();
-//        $brands = Brands::all();
-//        $products = Product::with(['productEntries', 'images'])->get();
-//
-//        foreach ($products as $product){
-//
-//            $brand = Brands::where('id',$product['brands_id'])->first();
-//            $brandName = $brand['brandName'];
-//            $product['brandName'] = $brandName;
-//            foreach ($product->images as $image){
-//                $product['images'][] = $image;
-//            }
-////   $images[]
-////            dd($images[1]['image_name']);
-//            foreach ($product->productEntries as $productEntry) {
-////                $entry = $productEntry;
-//                $size_id = $productEntry['size_id'];
-//                $color_id = $productEntry['color_id'];
-//            }
-//            $product['size'] =(Size::where('id', $size_id)->first())['size_value'];
-//            $product['color'] = (Color::where('id', $color_id)->first())['color_name'];
-//
-//        }
-//        return view('welcome', compact('products','categories', 'sizes', 'colors', 'brands'));
-//    }
 
     public function productInfo($id)
     {

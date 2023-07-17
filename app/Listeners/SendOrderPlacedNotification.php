@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\OrderPlaced;
+use App\Jobs\SendEmailJob;
 use App\Mail\OrderPlacedNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -13,6 +14,7 @@ class SendOrderPlacedNotification implements ShouldQueue
     /**
      * Create the event listener.
      */
+
     public function __construct()
     {
         //
@@ -26,7 +28,7 @@ class SendOrderPlacedNotification implements ShouldQueue
         $user = $event->user; // Get the user from the event
         $order = $event->order; // Get the order from the event
 
-        Mail::to($user->email)->send(new OrderPlacedNotification($user, $order));
+        dispatch(new SendEmailJob($user, $order));
     }
 
 }

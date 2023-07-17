@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\OrderPlaced;
 use App\Events\QuantityUpdated;
+use App\Listeners\SendOrderPlacedNotification;
 use App\Mail\OrderPlacedNotification;
 use App\Models\OrderDetails;
 use App\Models\OrderItem;
@@ -136,10 +137,7 @@ class StripeController extends Controller
 
                 }
             }
-
         }
-
-
         event(new OrderPlaced($user, $order));
 // Return a response to the client
         return response()->json(['message' => 'Order Placed Successfully']);

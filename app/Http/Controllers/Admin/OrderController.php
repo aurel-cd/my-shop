@@ -13,37 +13,7 @@ use Yajra\DataTables\DataTables;
 class OrderController extends Controller
 {
     public function orderList(){
-        $total_revenue = 0;
-        $orders = OrderDetails::with(['orderItems'])->get();
-        foreach ($orders as $order){
-            $total_revenue += $order->total_price;
-        }
-        $order_items= OrderItem::all();
-        $ordered_items_count = [];
-
-        // Count the occurrences of each product_id
-        foreach ($order_items as $order_item) {
-            $product_id = $order_item->product_id;
-            if (isset($ordered_items_count[$product_id])) {
-                $ordered_items_count[$product_id]++;
-            } else {
-                $ordered_items_count[$product_id] = 1;
-            }
-        }
-
-        // Find the product_id with the maximum count
-        $max_ordered_product_id = null;
-        $max_ordered_count = 0;
-        foreach ($ordered_items_count as $product_id => $count) {
-            if ($count > $max_ordered_count) {
-                $max_ordered_product_id = $product_id;
-                $max_ordered_count = $count;
-            }
-        }
-
-        $best_seller = Product::find($max_ordered_product_id);
-//        dd($best_seller);
-        return view('admin.orders', compact('total_revenue', 'best_seller'));
+        return view('admin.orders');
     }
     public function orderDatatable(){
         $orders = OrderDetails::with(['orderItems'])->get();
