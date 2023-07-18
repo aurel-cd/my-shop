@@ -13,6 +13,7 @@
                     <th scope="col" class="px-4 py-4">Client</th>
                     <th scope="col" class="px-4 py-4">Order Title</th>
                     <th scope="col" class="px-4 py-4">Qty</th>
+                    <th scope="col" class="px-4 py-4">Status</th>
                     <th scope="col" class="px-4 py-4">Price</th>
                     <th scope="col" class="px-4 py-4">Country</th>
                     <th scope="col" class="px-4 py-4">Date</th>
@@ -270,6 +271,9 @@
                         "data": "quantity", "name": "quantity"
                     },
                     {
+                        "data": "status", "name":"status"
+                    },
+                    {
                         "data": "price", "name": "price"
                     },
                     {
@@ -282,7 +286,20 @@
                         "data": "action", "name": "action", orderable: true, searchable: true
                     },
 
-                ]
+                ],
+                "columnDefs": [
+                    {
+                        "targets": 4,
+                        createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
+                            if (cellData == 'paid') {
+                                $(cell).css('color', 'green'); // Set the text color to green
+                            }else{
+                                $(cell).css('color', 'red'); // Set the text color to green
+
+                            }
+                        }
+                    }
+                ],
             });
             $(document).on('click', '.viewOrder', function (event) {
                 event.preventDefault();

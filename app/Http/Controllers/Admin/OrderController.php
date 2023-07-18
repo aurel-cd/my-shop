@@ -37,6 +37,9 @@ class OrderController extends Controller
             ->addColumn('quantity', function ($order) {
                 return $order['item_number'];
             })
+            ->addColumn('status', function ($order) {
+                return $order['status'];
+            })
             ->addColumn('price', function ($order) {
                 return $order->total_price;
             })

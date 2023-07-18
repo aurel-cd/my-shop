@@ -80,6 +80,8 @@ Route::middleware(['auth','cors', 'role:user'])->name('user.')->prefix('user')->
     Route::get('/orders',[\App\Http\Controllers\User\OrderController::class, 'orders'])->name('orders');
     Route::post('/orders',[\App\Http\Controllers\User\OrderController::class, 'orderDatatable'])->name('orderDatatable');
     Route::post('/showOrderDetails', [OrderController::class, 'showOrderDetails'])->name('showOrderDetails');
+    Route::post('/cancelOrder', [StripeController::class, 'cancelOrder'])->name('cancelOrder');
+
 });
 
 //PROFILE UPDATING ROUTES FOR EVERY USER

@@ -17,6 +17,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Stripe\Charge;
+use Stripe\Customer;
+use Stripe\Refund;
 use Stripe\Stripe;
 
 use Stripe\PaymentIntent;
@@ -92,17 +95,23 @@ class StripeController extends Controller
 
         // Create a PaymentIntent in Stripe
         $paymentIntent = PaymentIntent::create([
-            'amount' => $total_amount, // Replace with the actual payment amount in cents
+            'amount' => $total_amount*100, // Replace with the actual payment amount in cents
             'currency' => 'usd',
             'payment_method' => $paymentMethod['id'],
             'confirm' => true,
         ]);
+//        $paymentIntent->confirm();
+//        $paymentIntent->confirm();
+
+// Retrieve the charge ID from the Payment Intent
+//        $chargeId = $paymentIntent->charges->data[0]->id;
+
 
         // Process the payment details and save them to your database or perform any other required actions
         $order = new OrderDetails();
         $order->total_price=$total_amount;
         $order->user_id=$userId;
-        $order->session_id = $sessionId;
+        $order->session_id = $paymentIntent->id;
         $order->status = 'paid';
         $order->order_title = $request->title;
         $order->country = $country;
@@ -145,8 +154,35 @@ class StripeController extends Controller
 
 
 
-    public function cancelPayment()
+    public function cancelOrder(Request $request)
     {
-        echo 'Payment cancelled';
+        $orderDetails = $request->data;
+        $amount = $orderDetails['total_price']*100;
+        // Set the Stripe API key
+        Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+
+// Retrieve the payment method ID
+        $paymentIntent = $orderDetails['session_id'];
+
+
+        $refund = \Stripe\Refund::create([
+            'payment_intent' => $paymentIntent,
+        ]);
+
+
+        // Handle the refund response
+        if ($refund->status === 'succeeded') {
+
+            $order = OrderDetails::find($orderDetails['id']);
+            if ($order) {
+                $order->status = 'cancelled/refunded';
+                $order->save();
+            }
+
+            return response()->json(['message'=>'Order Cancelled. Payment Refunded!']);
+        } else {
+            return response()->json(['message'=>'Error']);
+        }
+
     }
 }
