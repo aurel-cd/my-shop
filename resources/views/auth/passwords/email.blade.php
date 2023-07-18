@@ -1,11 +1,26 @@
-@extends('layouts.app')
-
-@section('content')
+<x-guest-layout>
 <div class="container">
     <div class="row justify-content-center">
+        <div class="sm:fixed sm:top-0 sm:right-0 p-6 text-right z-10">
+            @auth
+                @if( Auth::user()->hasRole('admin') )
+                    <a href="{{ route('admin.dashboard') }}"
+                       class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dashboard</a>
+                @endif
+                @if( Auth::user()->hasRole('user') )
+                    <a href="{{ route('user.dashboard') }}"
+                       class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dashboard</a>
+
+                @endif
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}"
+                       class="ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</a>
+                @endif
+            @endauth
+        </div>
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Reset Password') }}</div>
+                <div class="flex card-header justify-center font-bold">{{ __('Reset Password') }}</div>
 
                 <div class="card-body">
                     @if (session('status'))
@@ -17,26 +32,24 @@
                     <form method="POST" action="{{ route('password.email') }}">
                         @csrf
 
-                        <div class="row mb-3">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-
+                        <div class="mb-3">
+                            <div>
+                                <x-input-label for="email" :value="__('Email Address')"/>
+                                <x-text-input id="email" class="@error('email') is-invalid @enderror block mt-1 w-full" type="email" name="email" :value="old('email')" required
+                                              autofocus autocomplete="username"/>
                                 @error('email')
-                                    <span class="invalid-feedback" role="alert">
+                                <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
                             </div>
                         </div>
 
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Send Password Reset Link') }}
-                                </button>
-                            </div>
+                        <div class="row mb-0 flex justify-end">
+                            <x-primary-button class="ml-3">
+                                {{ __('Send Password Reset Link') }}
+                            </x-primary-button>
+
                         </div>
                     </form>
                 </div>
@@ -44,4 +57,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-guest-layout>

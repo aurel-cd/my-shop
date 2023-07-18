@@ -121,7 +121,7 @@
         $(document).ready(function (event) {
             //Order Chart
             $.ajax({
-                url: '{{route('charts')}}',
+                url: '{{route('admin.charts')}}',
                 method: 'GET',
                 dataType: 'json',
                 success: function (response) {
@@ -173,7 +173,7 @@
 
             // Item chart
             $.ajax({
-                url: '{{route('itemCharts')}}',
+                url: '{{route('admin.itemCharts')}}',
                 method: 'GET',
                 dataType: 'json',
                 success: function (response) {

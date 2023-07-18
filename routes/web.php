@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ChartController;
 use App\Http\Controllers\Admin\IndexController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProductController;
@@ -64,6 +65,9 @@ Route::middleware(['auth'])->name('admin.')->prefix('admin')->group(function(){
         Route::get('/orders', [OrderController::class, 'orderList'])->name('orders');
         Route::post('/orders', [OrderController::class, 'orderDatatable'])->name('orderDatatable');
         Route::post('/showOrderDetails', [OrderController::class, 'showOrderDetails'])->name('showOrderDetails');
+
+        Route::get('/charts',[ChartController::class, 'index'])->name('charts');
+        Route::get('/itemCharts',[ChartController::class, 'itemChart'])->name('itemCharts');
     });
 });
 

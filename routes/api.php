@@ -1,6 +1,8 @@
 <?php
 
-use App\Http\Controllers\Admin\ChartController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProductsController;
+use App\Http\Controllers\Api\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +21,20 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-    Route::get('/charts',[ChartController::class, 'index'])->name('charts');
-Route::get('/itemCharts',[ChartController::class, 'itemChart'])->name('itemCharts');
+
+Route::post('login',[AuthController::class, 'loginUser']);
+
+Route::middleware('auth:sanctum')->group(function(){
+    Route::get('users', [UsersController::class, 'showUsers']);
+    Route::get('user/{user}', [UsersController::class, 'showUser']);
+
+    Route::get('/products', [ProductsController::class, 'showProducts']);
+    Route::get('/product/{product}', [ProductsController::class, 'showProduct']);
+});
+
+
+
+
+
+
 
