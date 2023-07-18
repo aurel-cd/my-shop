@@ -14,6 +14,6 @@ class ProductsController extends Controller
     }
 
     public function showProduct(Product $product){
-        return $product;
+        return $product->with(['productEntries', 'images'])->first();
     }
 }

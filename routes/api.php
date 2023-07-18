@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\UsersController;
 use Illuminate\Http\Request;
@@ -30,6 +31,9 @@ Route::middleware('auth:sanctum')->group(function(){
 
     Route::get('/products', [ProductsController::class, 'showProducts']);
     Route::get('/product/{product}', [ProductsController::class, 'showProduct']);
+
+    Route::get('/orders', [OrderController::class, 'showOrders']);
+    Route::get('/order/{order}', [OrderController::class, 'showOrder']);
 });
 
 

@@ -8,6 +8,8 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Size;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -80,30 +82,39 @@ class ProductListController extends Controller
         } else {
             $products = Product::with(['productEntries', 'images'])->paginate(4);
         }
-        foreach ($products as $product) {
 
+        foreach ($products as $product) {
             $brand = Brands::where('id', $product['brands_id'])->first();
             $brandName = $brand['brandName'];
             $product['brandName'] = $brandName;
             foreach ($product->images as $image) {
                 $product['images'][] = $image;
             }
-//   $images[]
-//            dd($images[1]['image_name']);
 
             foreach ($product->productEntries as $productEntry) {
-//                $entry = $productEntry;
                 $size_id = $productEntry['size_id'];
                 $color_id = $productEntry['color_id'];
             }
             $product['size'] = (Size::where('id', $size_id)->first())['size_value'];
             $product['color'] = (Color::where('id', $color_id)->first())['color_name'];
-
         }
-//dd($products);
+
+
+        $filteredView = view('filteredProducts', compact('products', 'categories', 'sizes', 'colors', 'brands'))->render();
+
+
+
+        return response()->json([
+            'data' => $filteredView,
+            'pagination' =>$products->links()->toHtml()
+        ]);
 //            return view('welcome', compact('products', 'categories', 'sizes', 'colors', 'brands'));
-        return response()->json(['data'=>view('filteredProducts', compact('products', 'categories', 'sizes', 'colors', 'brands'))->render()]);
+//        return response()->json(['data'=>view('filteredProducts', compact('products', 'categories', 'sizes', 'colors', 'brands'))->render()]);
+
     }
+
+
+
     public function selectedProduct(Request $request)
     {
         $sizes = Size::all();
@@ -145,6 +156,8 @@ class ProductListController extends Controller
         }
 //        dd($products);
 //            return view('welcome', compact('products', 'categories', 'sizes', 'colors', 'brands'));
+        // Retrieve and manipulate the data
+
         return response()->json(['data'=>view('filteredProducts', compact('products', 'categories', 'sizes', 'colors', 'brands'))->render()]);
     }
 

@@ -202,14 +202,14 @@
                                     display: true,
                                     title: {
                                         display: true,
-                                        text: 'Order Title'
+                                        text: 'Ordered Products'
                                     }
                                 },
                                 y: {
                                     display: true,
                                     title: {
                                         display: true,
-                                        text: 'Price'
+                                        text: 'QTY'
                                     },
                                     min: 0,
                                     max: 25
