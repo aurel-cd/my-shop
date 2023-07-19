@@ -29,7 +29,17 @@
                 <tbody class="bg-gray-100 p-5">
 
                 </tbody>
-            </table>
+                    <tfoot class="text-dark bg-gray-200 border-[#2c7da0] font-weight-bolder text-md dark:bg-gray-700 dark:text-gray-400">
+                    <th></th>
+                    <th></th>
+                    <th  id="totalRevenueFooter"></th>
+                    <th id="totalPrice"></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    </tfoot>
+                </table>
 
         </div>
 
@@ -265,12 +275,34 @@
                                 $(cell).css('color', 'green'); // Set the text color to green
                             }else{
                                 $(cell).css('color', 'red'); // Set the text color to green
-
                             }
                         }
                     }
                 ],
+                "footerCallback": function(row, data, start, end, display) {
+                    var api = this.api();
+
+                    // Filter and calculate the total revenue for paid orders
+                    var total = api
+                        .column(3, { page: 'current' })
+                        .data()
+                        .reduce(function(sum, value, index) {
+                            var orderStatus = api.row(index).data()['status'];
+                            console.log(orderStatus);
+                                if (orderStatus === 'paid') {
+                                    return sum + parseFloat(value);
+                                } else {
+                                    return sum;
+                                }
+                                }, 0);
+
+                                // Add the total row at the bottom
+                                $('#totalRevenueFooter').html('Total Revenue: ');
+                                $('#totalPrice').html(total.toFixed(2) + '$');
+                }
             });
+
+
             $(document).on('click', '.viewOrder', function (event) {
                 event.preventDefault();
                 var $row = $(this).closest('tr');

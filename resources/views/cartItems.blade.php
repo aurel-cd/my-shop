@@ -122,8 +122,7 @@
                     dataType: 'json',
                     success: function (response) {
                         $('.productCardsContainer').html(response.data);
-                        // $('.pppp').html(response.data);
-                        // console.log(response.data);
+
                     },
                     error: function (xhr, status, error) {
                         // Handle the error response

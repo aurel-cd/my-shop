@@ -25,7 +25,9 @@
     },
     "dependencies": {
         "chart.js": "^4.3.0",
+        "daterangepicker": "^3.1.0",
         "jquery-validation": "^1.19.5",
+        "moment": "^2.29.4",
         "sweetalert": "^2.1.2"
     }
 }

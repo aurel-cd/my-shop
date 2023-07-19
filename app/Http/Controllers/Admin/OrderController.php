@@ -15,10 +15,20 @@ class OrderController extends Controller
     public function orderList(){
         return view('admin.orders');
     }
-    public function orderDatatable(){
-        $orders = OrderDetails::with(['orderItems'])->get();
 
 
+    public function orderDatatable(Request $request){
+
+            if($request->start_date != null) {
+                $startDate = $request->start_date . ' 00:00:00';
+                $endDate = $request->end_date . ' 23:59:59';
+                $orders = OrderDetails::with(['orderItems'])
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->get();
+            }else{
+                $orders = OrderDetails::with(['orderItems'])->get();
+            }
+//            dd($orders);
         foreach ($orders as $order){
 
             $order['item_number'] = count($order->orderItems);
@@ -66,6 +76,7 @@ class OrderController extends Controller
             ->make(true);
     }
 
+
     public function showOrderDetails(Request $request){
         $order_id = $request->id;
 
@@ -92,4 +103,5 @@ class OrderController extends Controller
 
         ]);
     }
+
 }

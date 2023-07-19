@@ -84,7 +84,6 @@ class StripeController extends Controller
         // Retrieve the payment details from the request
         $paymentMethod = $request->input('paymentMethod');
         $products = json_decode($request->products);
-//        dd($products);
 
         $total_amount = $request -> amount;
         $sessionId = $request->paymentMethod['id'];
@@ -100,12 +99,6 @@ class StripeController extends Controller
             'payment_method' => $paymentMethod['id'],
             'confirm' => true,
         ]);
-//        $paymentIntent->confirm();
-//        $paymentIntent->confirm();
-
-// Retrieve the charge ID from the Payment Intent
-//        $chargeId = $paymentIntent->charges->data[0]->id;
-
 
         // Process the payment details and save them to your database or perform any other required actions
         $order = new OrderDetails();
@@ -157,14 +150,10 @@ class StripeController extends Controller
     public function cancelOrder(Request $request)
     {
         $orderDetails = $request->data;
-        $amount = $orderDetails['total_price']*100;
         // Set the Stripe API key
         Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
-
 // Retrieve the payment method ID
         $paymentIntent = $orderDetails['session_id'];
-
-
         $refund = \Stripe\Refund::create([
             'payment_intent' => $paymentIntent,
         ]);
@@ -177,8 +166,19 @@ class StripeController extends Controller
             if ($order) {
                 $order->status = 'cancelled/refunded';
                 $order->save();
-            }
 
+                // Retrieve the associated order items
+                $orderItems = $order->orderItems;
+
+                foreach ($orderItems as $item) {
+                    // Increase the quantity of each ordered item by 1
+                    $product = Product::with(['productEntries', 'images'])->where('id', $item->product_id)->first();
+                    foreach ($product->productEntries as $entry){
+                        $entry->quantity += 1;
+                        $entry->save();
+                    }
+                }
+            }
             return response()->json(['message'=>'Order Cancelled. Payment Refunded!']);
         } else {
             return response()->json(['message'=>'Error']);

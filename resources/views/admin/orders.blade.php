@@ -1,11 +1,17 @@
 <x-admin-layout>
     @section('links')
         <link rel="stylesheet" href="{{Vite::asset('resources/assets/datatable/datatable.css')}}">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     @endsection
 
     <div class="py-4 px-4 mt-14 sm:ml-64 bg-[#61a5c2]">
         <div class="relative py-4 px-4 bg-[#a9d6e5] overflow-x-auto shadow-md sm:rounded-lg">
-
+            <caption class="flex inline-flex text-lg justify-center p-5 text-gray-200 dark:text-white dark:bg-gray-800">
+                <h1 class="text-center font-bold"> ORDER HISTORY</h1>
+                <div class="inline-flex justify-center p-2">
+                <h3  class="py-1 px-1 text-center text-xl font-bold">Filter:</h3><input class="border-[#aaa]" type="text" id="daterangePicker" name="daterangePicker">
+                </div>
+            </caption>
             <table id="orderDatatable" class="w-full text-sm text-left text-dark dark:text-gray-400">
                 <thead class="text-dark  font-weight-bolder text-md dark:bg-gray-700 dark:text-gray-400">
                 <tr>
@@ -25,23 +31,30 @@
                 <tbody>
 
                 </tbody>
+                <tfoot class="text-dark  font-weight-bolder text-md dark:bg-gray-700 dark:text-gray-400">
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th id="totalRevenueFooter"></th>
+                <th id="totalPrice"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+
+                </tfoot>
             </table>
-
-
         </div>
-
-
     </div>
     <div class="py-4 px-4 mt-5 sm:ml-64 bg-[#a9d6e5]">
 
         <div class="w-1/2 flex inline-flex">
-            <canvas  id="chartCanvas">
+            <canvas id="chartCanvas">
 
             </canvas>
 
 
-
-            <canvas  id="itemCanvas">
+            <canvas id="itemCanvas">
 
             </canvas>
         </div>
@@ -110,14 +123,122 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
-
+    <style>
+        #daterangePicker {
+            width: 220px;
+            border-radius: 5px
+        }
+    </style>
     <script type="module">
         var dataTable;
         var modal;
         var chart;
         var chart2;
 
+        let minDate;
+        let maxDate;
+
+        var daterange = $('#daterangePicker');
+        //DATATABLE
+        function fetch(start_date, end_date) {
+            if(dataTable){
+                dataTable.destroy();
+            }
+            dataTable = $('#orderDatatable').DataTable({
+                "processing": true,
+                "serverSide": true,
+
+                "ajax": {
+                    type: "post",
+                    url: "{{route('admin.orders')}}",
+                    "data": {
+                        "_token": "{{ csrf_token() }}",
+                        'start_date': start_date,
+                        'end_date': end_date
+                    },
+                },
+                "columns": [
+                    {
+                        "data": "DT_RowIndex", orderable: false, searchable: false
+                    },
+                    {
+                        "data": "client", "name": "client"
+                    },
+                    {
+                        "data": "order_title", "name": "order_title"
+                    },
+                    {
+                        "data": "quantity", "name": "quantity"
+                    },
+                    {
+                        "data": "status", "name": "status"
+                    },
+                    {
+                        "data": "price", "name": "price"
+                    },
+                    {
+                        "data": "country", "name": "country"
+                    },
+                    {
+                        "data": "date", "name": "date"
+                    },
+                    {
+                        "data": "action", "name": "action", orderable: true, searchable: true
+                    },
+
+                ],
+                "columnDefs": [
+                    {
+                        "targets": 4,
+                        createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
+                            if (cellData == 'paid') {
+                                $(cell).css('color', 'green'); // Set the text color to green
+                            } else {
+                                $(cell).css('color', 'red'); // Set the text color to green
+
+                            }
+                        }
+                    }
+                ],
+                "footerCallback": function (row, data, start, end, display) {
+                    var api = this.api();
+
+                    // Filter and calculate the total revenue for paid orders
+                    var total = api
+                        .column(5, {page: 'current'})
+                        .data()
+                        .reduce(function (sum, value, index) {
+                            var orderStatus = api.row(index).data()['status'];
+                            if (orderStatus === 'paid') {
+                                return sum + parseFloat(value);
+                            } else {
+                                return sum;
+                            }
+                        }, 0);
+
+                    // Add the total row at the bottom
+                    $('#totalRevenueFooter').html('Total Revenue: ');
+                    $('#totalPrice').html(total.toFixed(2) + '$');
+                }
+            });
+        }
+
+        daterange.daterangepicker({
+                opens: 'right',
+                locale: {
+                    format: 'YYYY-MM-DD'
+                },
+                startDate: '2023-07-01',
+                endDate: '2023-08-31',
+            },
+            function (start, end, label) {
+                const startDate = start.format('YYYY-MM-DD');
+                const endDate = end.format('YYYY-MM-DD');
+                fetch(startDate,endDate);
+            });
+        fetch(daterange.data().startDate,daterange.data().endDate);
 
         $(document).ready(function (event) {
             //Order Chart
@@ -245,62 +366,6 @@
             modal = new Modal($targetEl, options);
 
 
-            //DATATABLE
-            dataTable = $('#orderDatatable').DataTable({
-                "processing": true,
-                "serverSide": true,
-
-                "ajax": {
-                    type: "POST",
-                    url: "{{route('admin.orders')}}",
-                    "data": {
-                        "_token": "{{ csrf_token() }}"
-                    },
-                },
-                "columns": [
-                    {
-                        "data": "DT_RowIndex", orderable: false, searchable: false
-                    },
-                    {
-                        "data": "client", "name": "client"
-                    },
-                    {
-                        "data": "order_title", "name": "order_title"
-                    },
-                    {
-                        "data": "quantity", "name": "quantity"
-                    },
-                    {
-                        "data": "status", "name":"status"
-                    },
-                    {
-                        "data": "price", "name": "price"
-                    },
-                    {
-                        "data": "country", "name": "country"
-                    },
-                    {
-                        "data": "date", "name": "date"
-                    },
-                    {
-                        "data": "action", "name": "action", orderable: true, searchable: true
-                    },
-
-                ],
-                "columnDefs": [
-                    {
-                        "targets": 4,
-                        createdCell: function (cell, cellData, rowData, rowIndex, colIndex) {
-                            if (cellData == 'paid') {
-                                $(cell).css('color', 'green'); // Set the text color to green
-                            }else{
-                                $(cell).css('color', 'red'); // Set the text color to green
-
-                            }
-                        }
-                    }
-                ],
-            });
             $(document).on('click', '.viewOrder', function (event) {
                 event.preventDefault();
                 var $row = $(this).closest('tr');

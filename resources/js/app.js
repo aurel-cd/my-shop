@@ -1,11 +1,10 @@
 import 'flowbite';
-// import './bootstrap.js';
+
 import Swal from 'sweetalert2';
 window.Swal = Swal;
 
 import jQuery from 'jquery';
 window.$ = window.jQuery= jQuery;
-
 
 import select2 from 'select2';
 select2();
@@ -25,4 +24,12 @@ Alpine.start();
 
 import Chart from 'chart.js/auto';
 window.Chart = Chart;
+
+import moment from "moment";
+// window.moment= moment;
+// moment().format();
+
+
+import daterangepicker from 'daterangepicker';
+window.daterangepicker = daterangepicker;
 

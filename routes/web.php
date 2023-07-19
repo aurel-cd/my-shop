@@ -31,7 +31,8 @@ Route::post('/', [ProductListController::class, 'dashboard']);
 Route::get('/getProductNames',[ProductListController::class,'getProductNames']);
 Route::get('/product/{id}', [ProductListController::class, 'productInfo'])->name('productInfo');
 //FILTERS
-Route::post('/filteredProducts',[ProductListController::class,'filteredProducts']);
+
+Route::get('/filteredProducts',[ProductListController::class,'filteredProducts']);
 Route::post('/selectedProduct',[ProductListController::class,'selectedProduct']);
 //CART ITEMS
 Route::post('/cartItems',[ProductListController::class, 'cartItems'])->name('getItems');

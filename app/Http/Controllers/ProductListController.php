@@ -104,10 +104,13 @@ class ProductListController extends Controller
 
 
 
-        return response()->json([
-            'data' => $filteredView,
-            'pagination' =>$products->links()->toHtml()
-        ]);
+        if($request->ajax()) {
+            return response()->json([
+                'data' => $filteredView,
+                'pagination' => $products->links()->toHtml()
+            ]);
+        }
+        return view('welcome', compact('products', 'categories', 'sizes', 'colors', 'brands'));
 //            return view('welcome', compact('products', 'categories', 'sizes', 'colors', 'brands'));
 //        return response()->json(['data'=>view('filteredProducts', compact('products', 'categories', 'sizes', 'colors', 'brands'))->render()]);
 
