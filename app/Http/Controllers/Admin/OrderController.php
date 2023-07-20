@@ -28,7 +28,6 @@ class OrderController extends Controller
             }else{
                 $orders = OrderDetails::with(['orderItems'])->get();
             }
-//            dd($orders);
         foreach ($orders as $order){
 
             $order['item_number'] = count($order->orderItems);

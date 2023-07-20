@@ -22,7 +22,7 @@ class ProductListController extends Controller
         $colors = Color::all();
         $brands = Brands::all();
 
-                $products = Product::with(['productEntries', 'images'])->paginate(4);
+        $products = Product::with(['productEntries', 'images'])->paginate(4);
 
             foreach ($products as $product) {
                 $brand = Brands::where('id', $product['brands_id'])->first();
@@ -39,7 +39,6 @@ class ProductListController extends Controller
                 $product['size'] = (Size::where('id', $size_id)->first())['size_value'];
                 $product['color'] = (Color::where('id', $color_id)->first())['color_name'];
             }
-
             return view('welcome', compact('products', 'categories', 'sizes', 'colors', 'brands'));
     }
 
@@ -63,7 +62,6 @@ class ProductListController extends Controller
 
         if ($brandId) {
             $query->where('brands_id', $brandId);
-//            dd($brandId);
         }
         if ($sizeId) {
             $query->whereHas('productEntries', function ($query) use ($sizeId) {
@@ -111,9 +109,6 @@ class ProductListController extends Controller
             ]);
         }
         return view('welcome', compact('products', 'categories', 'sizes', 'colors', 'brands'));
-//            return view('welcome', compact('products', 'categories', 'sizes', 'colors', 'brands'));
-//        return response()->json(['data'=>view('filteredProducts', compact('products', 'categories', 'sizes', 'colors', 'brands'))->render()]);
-
     }
 
 

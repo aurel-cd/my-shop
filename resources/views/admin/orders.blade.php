@@ -48,11 +48,7 @@
     </div>
     <div class="py-4 px-4 mt-5 sm:ml-64 bg-[#a9d6e5]">
 
-        <div class="w-1/2 flex inline-flex">
-            <canvas id="chartCanvas">
-
-            </canvas>
-
+        <div class="w-full flex inline-flex">
 
             <canvas id="itemCanvas">
 
@@ -223,81 +219,16 @@
                     $('#totalPrice').html(total.toFixed(2) + '$');
                 }
             });
-        }
-
-        daterange.daterangepicker({
-                opens: 'right',
-                locale: {
-                    format: 'YYYY-MM-DD'
-                },
-                startDate: '2023-07-01',
-                endDate: '2023-08-31',
-            },
-            function (start, end, label) {
-                const startDate = start.format('YYYY-MM-DD');
-                const endDate = end.format('YYYY-MM-DD');
-                fetch(startDate,endDate);
-            });
-        fetch(daterange.data().startDate,daterange.data().endDate);
-
-        $(document).ready(function (event) {
-            //Order Chart
-            $.ajax({
-                url: '{{route('admin.charts')}}',
-                method: 'GET',
-                dataType: 'json',
-                success: function (response) {
-                    // console.log(response);
-                    if (chart) {
-                        chart.destroy();
-                    }
-                    // Create the chart using Chart.js
-                    var ctx = document.getElementById('chartCanvas').getContext('2d');
-                    chart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: response.labels,
-                            datasets: [{
-                                label: response.datasets[0].label,
-                                data: response.datasets[0].data,
-                                backgroundColor: '#2c7da0',
-                                borderColor: 'white',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            aspectRatio: 1.5,
-                            scales: {
-                                x: {
-                                    display: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Order Title'
-                                    }
-                                },
-                                y: {
-                                    display: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Price'
-                                    },
-                                    min: 0,
-                                    max: 1000
-                                }
-                            }
-                        }
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.log('AJAX Error: ' + error);
-                }
-            });
-
             // Item chart
             $.ajax({
                 url: '{{route('admin.itemCharts')}}',
                 method: 'GET',
                 dataType: 'json',
+                "data": {
+                    "_token": "{{ csrf_token() }}",
+                    'start_date': start_date,
+                    'end_date': end_date
+                },
                 success: function (response) {
                     // console.log(response);
                     if (chart2) {
@@ -344,6 +275,26 @@
                     console.log('AJAX Error: ' + error);
                 }
             });
+        }
+
+        daterange.daterangepicker({
+                opens: 'right',
+                locale: {
+                    format: 'YYYY-MM-DD'
+                },
+                startDate: '2023-07-01',
+                endDate: '2023-08-31',
+            },
+            function (start, end, label) {
+                const startDate = start.format('YYYY-MM-DD');
+                const endDate = end.format('YYYY-MM-DD');
+                fetch(startDate,endDate);
+            });
+        fetch(daterange.data().startDate,daterange.data().endDate);
+
+        $(document).ready(function (event) {
+
+
 
             // MODAL SETTINGS
             const $targetEl = document.getElementById('orderModal');

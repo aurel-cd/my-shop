@@ -31,7 +31,6 @@ Route::post('/', [ProductListController::class, 'dashboard']);
 Route::get('/getProductNames',[ProductListController::class,'getProductNames']);
 Route::get('/product/{id}', [ProductListController::class, 'productInfo'])->name('productInfo');
 //FILTERS
-
 Route::get('/filteredProducts',[ProductListController::class,'filteredProducts']);
 Route::post('/selectedProduct',[ProductListController::class,'selectedProduct']);
 //CART ITEMS
@@ -43,6 +42,7 @@ Route::get('/cartItems',function(){
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 //SPECIFIED ROUTES AFTER AUTHENTICATION
 Route::middleware(['auth'])->name('admin.')->prefix('admin')->group(function(){
@@ -67,7 +67,6 @@ Route::middleware(['auth'])->name('admin.')->prefix('admin')->group(function(){
         Route::post('/orders', [OrderController::class, 'orderDatatable'])->name('orderDatatable');
         Route::post('/showOrderDetails', [OrderController::class, 'showOrderDetails'])->name('showOrderDetails');
 
-        Route::get('/charts',[ChartController::class, 'index'])->name('charts');
         Route::get('/itemCharts',[ChartController::class, 'itemChart'])->name('itemCharts');
     });
 });

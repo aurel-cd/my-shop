@@ -55,15 +55,6 @@
                         </svg>
                         </a>
                     </div>
-                <style>
-                    .selectjs{
-                        width:200px;
-                        height:40px;
-                        margin-top:0;
-                        margin-bottom: 0;
-                    }
-                </style>
-
                     <div class="flex">
                         <select name="selectjs" id="ajaxSelect" class="selectjs">
                             <option value=""></option>
@@ -164,6 +155,15 @@
         </div>
     </div>
 </nav>
+<style>
+    .selectjs{
+        width:200px;
+        height:40px;
+        margin-top:0;
+        margin-bottom: 0;
+    }
+</style>
+
 <script type="module">
     $(document).ready(function(){
         var selectedProductName;
@@ -203,9 +203,6 @@
         }).on("change", function(event) {
             event.preventDefault();
             selectedProductName = $(this).val();
-
-            // console.log(selectedProductText);
-            // console.log(selectedProductText);
             getProduct(selectedProductName);
         });
     });
@@ -238,13 +235,11 @@
                         data: function (params) {
                             return {
                                 searchItem: params.term,
-
                             };
                         },
                         processResults: function (data) {
                             return {
                                 results: data,
-
                             };
                         },
                         allowClear: true,

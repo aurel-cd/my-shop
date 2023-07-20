@@ -1,5 +1,4 @@
 <x-app-layout>
-
     <div class="min-w-screen min-h-screen bg-gray-200 flex items-center justify-center px-5 pb-10 mt-14">
 
         <div class="w-full justify-center rounded-lg bg-white shadow-lg p-5 text-gray-700" style="max-width: 600px">
@@ -143,10 +142,10 @@
 
             cardElement.mount('#card-element');
 
-            const cardHolderName = document.getElementById('card-holder-name');
-            const clientEmail = document.getElementById('card-holder-email');
-            const cardButton = document.getElementById('card-button');
-            const orderTitle = document.getElementById('order-title');
+            const cardHolderName = $('#card-holder-name');
+            const clientEmail = $('#card-holder-email');
+            const cardButton = $('#card-button');
+            const orderTitle = $('#order-title');
 
 
             const amount = '{{$session->amount_total/100}}';
@@ -213,7 +212,6 @@
                             });
                         }
                     });
-                    // Proceed with further actions (e.g., submit the form, process the payment)
                 }
             });
 
@@ -224,11 +222,6 @@
 
     <style>@import url(https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css);</style>
     <style>
-        /*
-        module.exports = {
-            plugins: [require('@tailwindcss/forms'),]
-        };
-        */
         .form-radio {
             -webkit-appearance: none;
             -moz-appearance: none;

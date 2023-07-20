@@ -1,19 +1,5 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Laravel</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet"/>
-    @vite(['resources/css/app.css','resources/js/app.js'])
-
-</head>
-<body class="antialiased bg-[#a9d6e5]">
-@include('layouts.navigation')
+<x-app-layout>
 @auth
     @if( Auth::user()->hasRole('admin') )
         @include('layouts.sidebar')
@@ -78,7 +64,8 @@
                     <div>
     @endif
 @endauth
-</body>
+</x-app-layout>
+
 <script src="https://js.stripe.com/v3/"></script>
 <script type="module">
     $(document).ready(function() {
@@ -105,8 +92,7 @@
                 }
             });
         } else {
-            // Loop through ea
-            // consch product in the cart
+            // get product ids in the cart
             $.each(products, function (index) {
                 productIDs[index] = products[index].id;
             });
@@ -152,19 +138,14 @@
                             </li>`;
 
                     total += parseInt(product.price);
-                    // console.log(product.price);
                 });
                 $('#product_receipt').html(listItemHTML);
                 $('#totalPrice').text('$'+total);
 
             }
         }
-
-
     });
-    // $(window).unload(function() {
-    //     window.localStorage.removeItem('cartItems');
-    // });
+
 
 </script>
 </html>
