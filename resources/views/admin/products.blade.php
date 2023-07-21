@@ -8,7 +8,7 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
     <div class="py-4 px-2 mt-14 sm:ml-64 bg-[#61a5c2]">
         <div class="relative py-4 px-4 bg-[#a9d6e5] overflow-x-auto shadow-md sm:rounded-lg">
             <div>
-                <caption class=" text-lg font-semibold text-left  text-gray-200 dark:text-white dark:bg-gray-800">
+                <caption class="text-lg font-semibold text-left  text-gray-200 dark:text-white dark:bg-gray-800">
                     <div class="flex justify-end mt-4">
 
                         <button type="button" data-modal-toggle="addProductModal" data-modal-target="addProductModal"
@@ -156,43 +156,6 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
                             <x-input-error :messages="$errors->get('price')" class="mt-2"/>
                         </div>
                     </div>
-                    <div class="grid grid-cols-4 gap-4 mt-4 mb-4">
-                        <div>
-                            <x-input-label for="color" :value="__('Color')"/>
-                            <select name="color" id="color"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option value="select" selected>Select a color</option>
-                                @foreach($colors as $color)
-                                    <option value="{{ $color->id }}">{{ $color->color_name }}</option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('color')" class="mt-2"/>
-                        </div>
-                        <div>
-                            <x-input-label for="size" :value="__('Size')"/>
-                            <select name="size" id="size"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option value="select" selected>Select a size</option>
-                                @foreach($sizes as $size)
-                                    <option value="{{ $size->id }}">{{ $size->size_value }}</option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('size')" class="mt-2"/>
-                        </div>
-                        <div>
-                            <x-input-label for="quantity" :value="__('Inventory')"/>
-                            <x-text-input id="quantity" class="block mt-1 w-full" type="number" min="0" max="100"
-                                          name="quantity"
-                                          :value="old('quantity')" required autocomplete="quantity"/>
-                            <x-input-error :messages="$errors->get('quantity')" class="mt-2"/>
-                        </div>
-                        <div>
-                            <x-input-label for="discount" :value="__('Discount')"/>
-                            <x-text-input id="discount" class="block mt-1 w-full" type="tel" name="discount"
-                                          :value="old('discount')" required autocomplete="discount"/>
-                            <x-input-error :messages="$errors->get('discount')" class="mt-2"/>
-                        </div>
-                    </div>
 
                     <div>
                         <x-input-label for="description" :value="__('Description')"/>
@@ -238,6 +201,121 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
 
         </div>
     </div>
+
+
+        <div id="addInventoryModal" tabindex="-1"
+             class="overflow-y-auto hidden overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full flex"
+             aria-modal="true" role="dialog">
+            <div class="mt-20">
+                <!-- Modal content -->
+                <div class="relative p-4 bg-[#a9d6e5] rounded-lg shadow dark:bg-gray-800 sm:p-5">
+                    <!-- Modal header -->
+                    <div
+                        class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
+                        <h3 class="inventoryHead head text-lg font-semibold text-gray-900 dark:text-white">
+                            Add Inventory
+                        </h3>
+
+                        <button type="button"
+                                class="resetModal absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+                                data-modal-hide="addInventoryModal">
+                            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                      clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+                    <!-- Modal body -->
+                    <form method="post" id="addInventoryForm"
+                          enctype="multipart/form-data">
+                        @csrf
+
+                        <div id="alert-3"
+                             class="flex hidden p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+                             role="alert">
+                            <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true"
+                                 xmlns="http://www.w3.org/2000/svg" fill="green" viewBox="0 0 18 18">
+                                <path
+                                    d="M3 7H1a1 1 0 0 0-1 1v8a2 2 0 0 0 4 0V8a1 1 0 0 0-1-1Zm12.954 0H12l1.558-4.5a1.778 1.778 0 0 0-3.331-1.06A24.859 24.859 0 0 1 6 6.8v9.586h.114C8.223 16.969 11.015 18 13.6 18c1.4 0 1.592-.526 1.88-1.317l2.354-7A2 2 0 0 0 15.954 7Z"/>
+                            </svg>
+                            <div class="alertContent ml-3 text-sm font-medium">
+{{--                                <p class="productAdded hidden"> Product Added Successfully! </p>--}}
+{{--                                <p class="productUpdated hidden"> Product Data Updated Successfully! </p>--}}
+                            </div>
+                            <button type="button"
+                                    class="closeInventory ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700"
+                                    data-dismiss-target="#alert-3" aria-label="Close">
+                                <span class="sr-only">Close</span>
+                                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                          clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="hidden" id="inventoryId" name="id" value="">
+                            <div>
+                                <x-input-label for="color" :value="__('Color')"/>
+                                <select name="color" id="color"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    <option value="select" selected>Select a color</option>
+                                    @foreach($colors as $color)
+                                        <option value="{{ $color->id }}">{{ $color->color_name }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('color')" class="mt-2"/>
+                            </div>
+                            <div>
+                                <x-input-label for="size" :value="__('Size')"/>
+                                <select name="size" id="size"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    <option value="select" selected>Select a size</option>
+                                    @foreach($sizes as $size)
+                                        <option value="{{ $size->id }}">{{ $size->size_value }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('size')" class="mt-2"/>
+                            </div>
+                            <div>
+                                <x-input-label for="quantity" :value="__('Inventory')"/>
+                                <x-text-input id="quantity" class="block mt-1 w-full" type="number" min="0" max="100"
+                                              name="quantity"
+                                              :value="old('quantity')" required autocomplete="quantity"/>
+                                <x-input-error :messages="$errors->get('quantity')" class="mt-2"/>
+                            </div>
+                            <div>
+                                <x-input-label for="discount" :value="__('Discount')"/>
+                                <x-text-input id="discount" class="block mt-1 w-full" type="tel" name="discount"
+                                              :value="old('discount')" required autocomplete="discount"/>
+                                <x-input-error :messages="$errors->get('discount')" class="mt-2"/>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
+                            <x-input-label class="hidden text-red-600 text-bold noInventory">No inventory for this size and color</x-input-label>
+
+                        </div>
+                        <div class="flex justify-between">
+                            <x-primary-button class="addInventory ml-50 end-0" type="submit">
+                                {{ __('Add Inventory') }}
+                            </x-primary-button>
+                            <x-primary-button class="updateInventory ml-50 end-0 hidden" type="submit" >
+                                {{ __('Save Changes') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
 
     {{--        delete PRODUCT
     --}}
@@ -305,9 +383,12 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
 
     <script type="module">
         var dataTable;
+        var productEntryTable;
         var modal;
         var deleteConfirm;
         var validator;
+        var inventoryModal;
+
         $(document).ready(function (event) {
             dataTable = $('#productDataTable').DataTable({
                 "processing": true,
@@ -322,7 +403,10 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
                 },
                 "columns": [
                     {
-                        "data": "DT_RowIndex", orderable: false, searchable: false
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: '',
                     },
                     {
                         "data": "image", "name": "images"
@@ -346,6 +430,74 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
                     },
                 ]
             });
+
+            function format(d) {
+                var tableHTML = '<table id="productEntry" cellpadding="5" cellspacing="0" border="0">';
+                tableHTML += '<thead><tr><th></th><th>Month</th><th>Total Hours In</th><th>Total Hours Out</th></tr></thead>';
+                tableHTML += '<tbody>';
+
+                tableHTML += '</tbody></table>';
+
+                return tableHTML;
+            }
+            $('#productDataTable tbody').on('click', '.dt-control', function() {
+                var tr = $(this).closest('tr');
+                var row = dataTable.row(tr);
+                var data = dataTable.row(row).data();
+                var id = data.id;
+                // console.log(id);
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    row.child(format(row.data())).show();
+                    tr.addClass('shown');
+
+                    // Initialize the nested DataTable
+                    var nestedTable = $('<table id="productEntries"  cellpadding="5" cellspacing="0" border="0"></table>').addClass('nested-table');
+                    row.child(nestedTable).show();
+
+                productEntryTable = nestedTable.DataTable({
+                    "searching": false, // Disable search bar
+                    "paging": false,
+                    "info": false,
+                    "ajax": {
+                        type: "POST",
+                        url: "{{route('admin.productEntries')}}",
+                        "data": {
+                            "_token": "{{ csrf_token() }}",
+                            'id': id
+                        },
+                    },
+                    columns: [{
+                        'data': 'DT_RowIndex', orderable: true, searchable: false
+                    },
+                        {
+                            "title":"Size ","data": "size", "name": "size"
+                        },
+                        {
+                            "title":"Color ","data": "color", "name": "color"
+                        },
+                        {
+                            "title":"Quantity ","data": "quantity", "name": "quantity"
+                        },
+                        {
+                            "data": "action", "name": "action", orderable: true, searchable: true
+                        },
+                    ],
+                    order: [
+                        [1, 'asc']
+                    ]
+                });
+                }
+
+            });
+
+
+
+
 
 // MODAL SETTINGS
             //ADD AND EDIT USER MODAL OPTIONS
@@ -395,6 +547,36 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
             };
             modal = new Modal($targetEl, options);
 
+
+            // Inventory
+            const $targetInventory = document.getElementById('addInventoryModal');
+            const inventoryOptions = {
+                closable: true,
+                backdrop: 'dynamic',
+                onHide: () => {
+                    $('#addInventoryForm').validate().resetForm();
+                    $('#addInventoryForm')[0].reset();
+                    $('.noInventory').addClass('hidden');
+
+                    $('#color').attr('disabled',false);
+                    $('#size').attr('disabled',false);
+
+                    // console.log(data);
+                    $('.inventoryHead').html('Add Inventory');
+                    $('.addInventory').removeClass('hidden');
+                    $('.updateInventory').addClass('hidden');
+                    // console.log('modal is hidden');
+                },
+                onShow: () => {
+                    // console.log('modal is shown');
+                },
+                onToggle: () => {
+                    // console.log('modal has been toggled');
+                }
+            };
+            inventoryModal = new Modal($targetInventory, inventoryOptions);
+
+
             //DELETE USER CONFIRMATION MODAL OPTIONS
             const $deleteTarget = document.getElementById('deleteProduct');
             const deleteOptions = {
@@ -421,7 +603,7 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
             event.preventDefault();
             var form = $('#addProductForm')[0];
             var formData = new FormData(form);
-            console.log(formData);
+            // console.log(formData);
             $.ajax({
                 type: "post",
                 url: "{{route('admin.createProduct')}}",
@@ -472,34 +654,34 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
                     price: {
                         required: true
                     },
-                    color: {
-                        required: {
-                            depends: function (element) {
-                                if ('select' == $('#color').val()) {
-                                    //Set predefined value to blank.
-                                    $('#color').val('');
-                                }
-                                return true;
-                            }
-                        }
-                    },
-                    size: {
-                        required: {
-                            depends: function (element) {
-                                if ('select' == $('#size').val()) {
-                                    //Set predefined value to blank.
-                                    $('#size').val('');
-                                }
-                                return true;
-                            }
-                        }
-                    },
-                    quantity: {
-                        required: true
-                    },
-                    discount: {
-                        required: true
-                    },
+                    // color: {
+                    //     required: {
+                    //         depends: function (element) {
+                    //             if ('select' == $('#color').val()) {
+                    //                 //Set predefined value to blank.
+                    //                 $('#color').val('');
+                    //             }
+                    //             return true;
+                    //         }
+                    //     }
+                    // },
+                    // size: {
+                    //     required: {
+                    //         depends: function (element) {
+                    //             if ('select' == $('#size').val()) {
+                    //                 //Set predefined value to blank.
+                    //                 $('#size').val('');
+                    //             }
+                    //             return true;
+                    //         }
+                    //     }
+                    // },
+                    // quantity: {
+                    //     required: true
+                    // },
+                    // discount: {
+                    //     required: true
+                    // },
                     description: {
                         required: true
                     },
@@ -521,18 +703,18 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
                     price: {
                         required: 'Product price is required!',
                     },
-                    color: {
-                        required: 'Product color is required!',
-                    },
-                    size: {
-                        required: 'Product size is required!',
-                    },
-                    quantity: {
-                        required: 'Product quantity is required!',
-                    },
-                    discount: {
-                        required: 'Product discount is required!',
-                    },
+                    // color: {
+                    //     required: 'Product color is required!',
+                    // },
+                    // size: {
+                    //     required: 'Product size is required!',
+                    // },
+                    // quantity: {
+                    //     required: 'Product quantity is required!',
+                    // },
+                    // discount: {
+                    //     required: 'Product discount is required!',
+                    // },
                     description: {
                         required: 'Product description is required!',
                     },
@@ -590,24 +772,24 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
                     var images = data.images;
                     console.log(images);
 
-                    var productEntry = data.product_entries[0];
-                    var size = productEntry.size_id;
-                    var color = productEntry.color_id;
-                    var quantity = productEntry.quantity;
+                    // var productEntry = data.product_entries[0];
+                    // var size = productEntry.size_id;
+                    // var color = productEntry.color_id;
+                    // var quantity = productEntry.quantity;
                     $('h3.head').html('Update Product');
                     $('#id').val(data.id);
                     $('#productName').val(data.product_name);
                     $('#productCategory').val(data.category_id);
                     $('#brand').val(data.brands_id);
                     $('#price').val(data.price);
-                    $('#size').val(size);
-                    $('#color').val(color);
-                    $('#quantity').val(quantity);
-                    if (data.discount_id == null) {
-                        $('#discount').val('0');
-                    } else {
-                        $('#discount').val(data.discount_id);
-                    }
+                    // $('#size').val(size);
+                    // $('#color').val(color);
+                    // $('#quantity').val(quantity);
+                    // if (data.discount_id == null) {
+                    //     $('#discount').val('0');
+                    // } else {
+                    //     $('#discount').val(data.discount_id);
+                    // }
                     $('#description').val(data.product_desc);
                     $('.add').addClass('hidden');
                     $('.edit').removeClass('hidden');
@@ -662,6 +844,127 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
         });
 
 
+
+        $(document).on('click', '.closeInventory', function(){
+           $('#addInventoryForm')[0].reset();
+        });
+        $(document).on('click','.addInventoryBtn', function(event){
+            inventoryModal.show();
+            var $row = $(this).closest('tr');
+            var data = dataTable.row($row).data();
+            var id = data.id;
+            $('#inventoryId').val(id);
+
+            $(document).on('change', '#size', '#color', function (event){
+
+                var size = $('#size').val();
+                var color = $('#color').val();
+
+                if(size && color){
+                    $.ajax({
+                        url: "{{route('admin.checkInventory')}}",
+                        type: "get",
+                        dataType: 'json',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            "color": color,
+                            "size": size,
+                            "id":id
+                        },
+                        success: function (response) {
+                            var quantity = response.data;
+                            if(quantity!=0){
+                                $('#quantity').val(quantity);
+                                $('.noInventory').addClass('hidden');
+
+                            }else{
+                                $('#quantity').val(quantity);
+                                $('.noInventory').removeClass('hidden');
+                            }
+
+                        },
+                        error: function (response) {
+                            alert('failed');
+                        }
+                    });
+                }
+            });
+
+
+
+            $(document).on('click','.addInventory', function(event){
+                event.preventDefault();
+
+                var formData = $('#addInventoryForm').serializeArray();
+                // var formData = new FormData(form);
+
+                console.log(formData);
+                $.ajax({
+                    url: "{{route('admin.addInventory')}}",
+                    type: "post",
+                    dataType: 'json',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "data": formData
+                    },
+                    success: function (response) {
+                        $('#productEntries').DataTable().ajax.reload();
+                        // deleteConfirm.hide();
+                        $('.addInventory').attr('disabled', true);
+                        inventoryModal.hide();
+                    },
+                    error: function (response) {
+                        alert('failed');
+                    }
+                });
+            });
+        });
+
+        $(document).on('click','.updateInventoryBtn', function(event){
+            $('#color').attr('disabled',true);
+            $('#size').attr('disabled',true);
+
+            var $row = $(this).closest('tr');
+            var data = productEntryTable.row($row).data();
+            // console.log(data);
+            $('#size').val(data.size_id);
+            $('#color').val(data.color_id);
+            $('#quantity').val(data.quantity);
+
+            $('.inventoryHead').html('Update Inventory');
+            $('.addInventory').addClass('hidden');
+            $('.updateInventory').removeClass('hidden');
+            inventoryModal.show();
+            $('.updateInventory').on('click',function(event){
+                event.preventDefault();
+
+                $.ajax({
+                    url: "{{route('admin.updateInventory')}}",
+                    type: "post",
+                    dataType: 'json',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "data": data,
+                        "quantity": $('#quantity').val(),
+                    },
+                    success: function (response) {
+                        // console.log(response.message == 'Inventory Updated');
+                            $('#productEntries').DataTable().ajax.reload();
+                            // // deleteConfirm.hide();
+                            $('.addInventory').attr('disabled', true);
+                            inventoryModal.hide();
+
+                    },
+                    error: function (response) {
+                        alert('failed');
+                    }
+                });
+            })
+        });
+
+
+
+
         // DELETE USER MODAL WITH CONFIRMATION
         var productIdToDelete;
         $(document).on('click', '.deleteBtn', function () {
@@ -680,7 +983,7 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
                         "id": productIdToDelete
                     },
                     success: function (response) {
-                        $('#productDataTable').DataTable().ajax.reload();
+                        // $('#productDataTable').DataTable().ajax.reload();
                         deleteConfirm.hide();
                     },
                     error: function (response) {
@@ -696,6 +999,7 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
             modal.hide();
             $('h3.head').html('Add Product');
             $('#addProductForm').validate().resetForm();
+            inventoryModal.hide();
         });
 
 

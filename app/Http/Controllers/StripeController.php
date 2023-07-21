@@ -4,27 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Events\OrderPlaced;
 use App\Events\QuantityUpdated;
-use App\Listeners\SendOrderPlacedNotification;
-use App\Mail\OrderPlacedNotification;
 use App\Models\OrderDetails;
 use App\Models\OrderItem;
 use App\Models\OrderItems;
 use App\Models\PaymentDetails;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Console\View\Components\Error;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
-use Stripe\Charge;
-use Stripe\Customer;
-use Stripe\Refund;
-use Stripe\Stripe;
-
 use Stripe\PaymentIntent;
-use Stripe\StripeClient;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Stripe\Stripe;
 
 class StripeController extends Controller
 {
@@ -71,7 +60,7 @@ class StripeController extends Controller
 
 
 //        dd($session);
-        return view('payment', compact('session','userId','productName', 'productIds' ));
+        return view('payment', compact('session', 'userId', 'productName', 'productIds'));
     }
 
 
@@ -85,16 +74,16 @@ class StripeController extends Controller
         $paymentMethod = $request->input('paymentMethod');
         $products = json_decode($request->products);
 
-        $total_amount = $request -> amount;
+        $total_amount = $request->amount;
         $sessionId = $request->paymentMethod['id'];
         $userId = Session::get('userId');
-        $card=$request->paymentMethod['card'];
+        $card = $request->paymentMethod['card'];
         $country = $card['country'];
         $user = User::where('id', $userId)->first();
 
         // Create a PaymentIntent in Stripe
         $paymentIntent = PaymentIntent::create([
-            'amount' => $total_amount*100, // Replace with the actual payment amount in cents
+            'amount' => $total_amount * 100, // Replace with the actual payment amount in cents
             'currency' => 'usd',
             'payment_method' => $paymentMethod['id'],
             'confirm' => true,
@@ -102,8 +91,8 @@ class StripeController extends Controller
 
         // Process the payment details and save them to your database or perform any other required actions
         $order = new OrderDetails();
-        $order->total_price=$total_amount;
-        $order->user_id=$userId;
+        $order->total_price = $total_amount;
+        $order->user_id = $userId;
         $order->session_id = $paymentIntent->id;
         $order->status = 'paid';
         $order->order_title = $request->title;
@@ -117,9 +106,9 @@ class StripeController extends Controller
         $payment_details->save();
 
 
-
-
         foreach ($products as $product) {
+            $size = $product->size;
+            $color = $product->color;
             $orderItem = new OrderItem();
             $orderItem->item_quantity = 1; // Set the quantity as needed
             $orderItem->product_id = $product->id;
@@ -127,27 +116,33 @@ class StripeController extends Controller
             $orderItem->save();
             $order->orderItems()->attach($orderItem->id);
 
-            $orderedProduct = Product::with('productEntries', 'images')->find($product->id);
+
+            $orderedProduct = Product::where('id', $product->id)->with(['productEntries'])
+                ->whereHas('productEntries', function ($query) use ($size, $color) {
+                    $query->where('size_id', $size)
+                        ->where('color_id', $color);
+                })
+                ->first();
 
             if ($orderedProduct) {
-                foreach ($orderedProduct->productEntries as $productEntry) {
-                    $quantity = $productEntry->quantity - 1;
-                    $productEntry->quantity = $quantity;
-                    $productEntry->save(); // Save the updated product entry
 
-                    event(new QuantityUpdated($product->id, $quantity));
+                $quantity = $orderedProduct->productEntries[0]->quantity;
+//                dd($quantity);
+                $orderedProduct->productEntries[0]->update(['quantity' => $quantity-1]);
+                event(new QuantityUpdated($product->id, $quantity));
 
-                }
             }
         }
+
+
         event(new OrderPlaced($user, $order));
 // Return a response to the client
         return response()->json(['message' => 'Order Placed Successfully']);
     }
 
 
-
-    public function cancelOrder(Request $request)
+    public
+    function cancelOrder(Request $request)
     {
         $orderDetails = $request->data;
         // Set the Stripe API key
@@ -173,15 +168,15 @@ class StripeController extends Controller
                 foreach ($orderItems as $item) {
                     // Increase the quantity of each ordered item by 1
                     $product = Product::with(['productEntries', 'images'])->where('id', $item->product_id)->first();
-                    foreach ($product->productEntries as $entry){
+                    foreach ($product->productEntries as $entry) {
                         $entry->quantity += 1;
                         $entry->save();
                     }
                 }
             }
-            return response()->json(['message'=>'Order Cancelled. Payment Refunded!']);
+            return response()->json(['message' => 'Order Cancelled. Payment Refunded!']);
         } else {
-            return response()->json(['message'=>'Error']);
+            return response()->json(['message' => 'Error']);
         }
 
     }

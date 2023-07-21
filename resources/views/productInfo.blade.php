@@ -114,6 +114,7 @@
                                         <div class="flex ml-6 items-center">
                                             <ul class="inline-flex">
                                                 <li>
+                                                    @if(!empty($availableColors) || !empty($availableSizes))
                                                     <select id="sizes"
                                                             class="bg-[#a9d6e5]  text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                                         <option value="">Size</option>
@@ -124,6 +125,7 @@
                                                     </select>
                                                 </li>
                                                 <li>
+
                                                     <select id="colors"
                                                             class="bg-[#a9d6e5] mx-5 px-5 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                                         <option value="">Color</option>
@@ -131,8 +133,13 @@
                                                             <option
                                                                 value="{{$color->id}}">{{$color->color_name}}</option>
                                                         @endforeach
-
                                                     </select>
+                                                    @endif
+                                                    @if(empty($availableColors) || empty($availableSizes))
+                                                        <x-input-label class="message">Out of Stock!</x-input-label>
+                                                    @endif
+                                                    <x-input-label class="messageInfo hidden">Out of Stock!</x-input-label>
+
                                                 </li>
                                             </ul>
                                         </div>
@@ -140,11 +147,12 @@
                                     <div class="flex">
                                         <span
                                             class="title-font font-medium text-2xl text-gray-900">${{$product->price}}</span>
-                                        <button
+                                        @if(!empty($availableColors) && !empty($availableSizes))
+                                        <button disabled
                                             class="addToCart flex ml-auto text-white bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded">
                                             Add To Cart
                                         </button>
-
+                                        @endif
                                         <button
                                             class="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
                                             <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -193,6 +201,78 @@
 </body>
 
 <script type="module">
+    $(document).ready(function(){
+        $(document).on('change', '#sizes', function (event){
+            var size = $('#sizes').val();
+            var color = $('#colors').val();
+            var id = {{$product->id}};
+            if(size && color){
+                $.ajax({
+                    url: "{{route('checkInventoryOrder')}}",
+                    type: "get",
+                    dataType: 'json',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "color": color,
+                        "size": size,
+                        "id":id
+                    },
+                    success: function (response) {
+                        var quantity = response.data;
+                        if(quantity!=0){
+
+                            $('.addToCart').attr('disabled', false);
+                            $('.messageInfo').addClass('hidden');
+
+                        }else{
+                            $('.messageInfo').removeClass('hidden');
+                            $('.addToCart').attr('disabled', true);
+                        }
+
+                    },
+                    error: function (response) {
+                        alert('failed');
+                    }
+                });
+            }
+        });
+        $(document).on('change', '#colors', function (event){
+            var size = $('#sizes').val();
+            var color = $('#colors').val();
+            var id = {{$product->id}};
+            if(size && color){
+                $.ajax({
+                    url: "{{route('checkInventoryOrder')}}",
+                    type: "get",
+                    dataType: 'json',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "color": color,
+                        "size": size,
+                        "id":id
+                    },
+                    success: function (response) {
+                        var quantity = response.data;
+                        if(quantity!=0){
+
+                            $('.addToCart').attr('disabled', false);
+                            $('.messageInfo').addClass('hidden');
+
+                        }else{
+                            $('.messageInfo').removeClass('hidden');
+                            $('.addToCart').attr('disabled', true);
+                        }
+
+                    },
+                    error: function (response) {
+                        alert('failed');
+                    }
+                });
+            }
+        });
+
+
+    });
     // Function to save product data in local storage
     function saveProductToLocalStorage() {
         // Get the product details
@@ -200,33 +280,20 @@
         var name = "{{$product->product_name}}";
         var price = "{{$product->price}}"
 
-        // Create an array to store product entries
-        var productEntries = [];
 
-        // Loop through each product entry
-        @foreach ($product->productEntries as $productEntry)
 
-        var size = "{{$productEntry->size_id}}"; // Assuming size_id is the ID of the size for this entry
-        var color = "{{$productEntry->color_id}}"; // Assuming color_id is the ID of the color for this entry
-        var quantity = "{{$productEntry->quantity}}"; // Assuming quantity is available in the product entry
+        var size = $('#sizes').val(); // Assuming size_id is the ID of the size for this entry
+        var color = $('#colors').val(); // Assuming color_id is the ID of the color for this entry
 
-        // Create a product entry object
-        var entry = {
-            size: size,
-            color: color,
-            quantity: quantity
-        };
 
-        // Add the entry to the product entries array
-        productEntries.push(entry);
-        @endforeach
 
         // Create a product object
         var product = {
             id: id,
             name: name,
             price: price,
-            productEntries: productEntries
+            size: size,
+            color:color,
         };
 
         // Check if local storage is supported by the browser
@@ -262,7 +329,8 @@
             Swal.fire({
                 icon: 'error',
                 title: 'Sorry, your browser does not support local storage.',
-            });        }
+            });
+        }
     }
 
     // Add event listener to the "Add to Cart" button

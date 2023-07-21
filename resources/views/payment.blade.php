@@ -135,6 +135,7 @@
         $(document).ready(function () {
 
             var productAll = localStorage.getItem('cartItems');
+            // console.log(productAll);
             const stripe = Stripe('pk_test_51NRbzOFpXn0EOxzMXhQcweuc75sbkwnPGhqTqs1QSSYOxcMh2mIee3yGRGH0DJYJfTga423pjcGt0zHIXcPQCRoA00Yvt40Nab');
 
             const elements = stripe.elements();
@@ -149,7 +150,7 @@
 
 
             const amount = '{{$session->amount_total/100}}';
-            cardButton.addEventListener('click', async (e) => {
+            cardButton.on('click', async (e) => {
                 e.preventDefault();
                 const {paymentMethod, error} = await stripe.createPaymentMethod({
                     type: 'card',

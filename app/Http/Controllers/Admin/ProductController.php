@@ -61,28 +61,19 @@ class ProductController extends Controller
 //        $products = Product::all();
         $products = Product::with(['productEntries', 'images'])->get();
         foreach ($products as $product){
-
-//            dd($product);
-
-
             $brand = Brands::where('id',$product['brands_id'])->first();
             $brandName = $brand['brandName'];
             $product['brandName'] = $brandName;
             foreach ($product->images as $image){
                 $product['images'][] = $image;
             }
-
-//            $images[]
-//            dd($images[1]['image_name']);
-            foreach ($product->productEntries as $productEntry) {
+                foreach ($product->productEntries as $productEntry) {
 //                $entry = $productEntry;
-                $size_id = $productEntry['size_id'];
-                $color_id = $productEntry['color_id'];
-            }
-            $size = (Size::where('id', $size_id)->first())['size_value'];
-            $color = (Color::where('id', $color_id)->first())['color_name'];
-
-//            dd($size);
+                    $size_id = $productEntry['size_id'];
+                    $color_id = $productEntry['color_id'];
+                    $size = (Size::where('id', $size_id)->first())['size_value'];
+                    $color = (Color::where('id', $color_id)->first())['color_name'];
+                }
         }
 
 
@@ -134,6 +125,11 @@ alt="...">
                             <button type="button" id="' . $product->id . '" class="px-2 editProductBtn shadow-lg text-white inline-flex items-center bg-[#2c7da0]  hover:bg-[#61a5c2] focus:ring-4 focus:outline-none focus:ring-[#61a5c2] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
                             <svg aria-hidden="true" class=" w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg>
                             </button>
+                            <button type="button" id="' . $product->id . '" class="px-2 addInventoryBtn shadow-lg text-white inline-flex items-center bg-[#2c7da0]  hover:bg-[#61a5c2] focus:ring-4 focus:outline-none focus:ring-[#61a5c2] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                            <svg class="w-6 h-6 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12.25V1m0 11.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M4 19v-2.25m6-13.5V1m0 2.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M10 19V7.75m6 4.5V1m0 11.25a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5ZM16 19v-2"/>
+  </svg>
+  </button>
                             <button type="button" id="' . $product->id . '" class="deleteBtn shadow-lg inline-flex items-center text-white bg-red-600 hover:bg-red-100 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900">
                             <svg aria-hidden="true" class="w-5 h-5 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                             </button></div>';
@@ -145,6 +141,175 @@ alt="...">
 
 
 
+
+    public function productEntries(Request $request){
+//        $products = Product::all();
+        $id = $request->id;
+        $entriesData = [];
+
+            $product = Product::with(['productEntries', 'images'])->where('id', $id)->first();
+                foreach ($product->productEntries as $productEntry) {
+                    $size_id = $productEntry['size_id'];
+                    $color_id = $productEntry['color_id'];
+                    $size = (Size::where('id', $size_id)->first())['size_value'];
+                    $color = (Color::where('id', $color_id)->first())['color_name'];
+                    $quantity= $productEntry->quantity;
+                    $entriesData[] = [
+                        'id'=>$id,
+                        'entry_id'=>$productEntry->id,
+                        'size' => $size,
+                        'size_id'=>$size_id,
+                        'color' => $color,
+                        'color_id'=>$color_id,
+                        'quantity' => $quantity,
+                    ];
+                }
+
+
+
+            return DataTables::of($entriesData)
+                ->addIndexColumn()
+                ->addColumn('size', function ($row) {
+                    return $row['size'];
+                })
+                ->addColumn('color', function ($row) {
+                    return $row['color'];
+                })
+                ->addColumn('quantity', function ($row) {
+                    return $row['quantity'];
+                })
+                ->editColumn('size_id', function ($row) {
+                    return $row['size_id'];
+                })
+                ->editColumn('color_id', function ($row) {
+                    return $row['color_id'];
+                })
+                ->addColumn('action', function ($row) {
+                    // Add the necessary HTML for the action column
+                    // For example, edit and delete buttons
+                    $actionBtn = '
+                            <button type="button" id="' . $row['id'] . '" class="px-2 updateInventoryBtn shadow-lg text-white inline-flex items-center bg-[#2c7da0]  hover:bg-[#61a5c2] focus:ring-4 focus:outline-none focus:ring-[#61a5c2] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                            <svg class="w-6 h-6 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12.25V1m0 11.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M4 19v-2.25m6-13.5V1m0 2.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M10 19V7.75m6 4.5V1m0 11.25a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5ZM16 19v-2"/>
+  </svg>
+  </button>
+
+                         ';
+                    return $actionBtn;
+                })
+                ->rawColumns(['size', 'color', 'quantity','action'])
+                ->make(true);
+    }
+
+    public function checkInventory(Request $request){
+//        dd($request);
+        $id = $request->id;
+        $size = $request->size;
+        $color = $request->color;
+
+        $product = Product::where('id', $id)->with(['productEntries'])
+            ->whereHas('productEntries', function ($query) use ($size, $color) {
+                $query->where('size_id', $size)
+                    ->where('color_id', $color);
+            })
+            ->first();
+
+        if($product){
+            $quantity = $product->productEntries[0]->quantity;
+        }else{
+            $quantity = 0;
+        }
+    return response()->json(['data'=>$quantity]);
+    }
+public function addInventory(Request $request){
+
+    $formData = $request->data;
+
+    // Step 2: Handle decoding and default values
+    $processedData = [];
+
+    foreach ($formData as $data){
+        // URL-decode the value as it may be encoded
+
+            $processedData[$data['name']] = $data['value'];
+
+    }
+//    dd($processedData);
+    $id = $processedData['id'];
+    $color = $processedData['color'];
+    $size = $processedData['size'];
+    $quantity = $processedData['quantity'];
+    $discount = $processedData['discount'];
+
+
+    $product = Product::where('id', $id)->with(['productEntries'])
+        ->whereHas('productEntries', function ($query) use ($size, $color) {
+            $query->where('size_id', $size)
+                ->where('color_id', $color);
+        })
+        ->first();
+
+    if($product){
+        $product->productEntries[0]->update(['quantity'=>$quantity]);
+    }else {
+
+        $productEntry = new ProductEntry([
+            'quantity' => $quantity,
+            'color_id' => $color,
+            'size_id' => $size,
+            'discount' => $discount
+        ]);
+
+        $productEntry->save();
+        $product = Product::where('id', $id)->get();
+
+        $productEntry->product()->attach($id);
+//        $product->productEntries()->attach($productEntry->id);
+    }
+    if ((!$product)) {
+        return response()->json([
+            'message' => 'Internal Server Error',
+        ], 500);
+    }
+    return response()->json([
+        'message' => 'Data added Succesfully',
+
+    ]);
+}
+
+
+    public function updateInventory(Request $request){
+
+        $data = $request->data;
+//        dd($request -> quantity);
+//        $id = $data['id'];
+//        $size = $data['size_id'];
+//        $color = $data['color_id'];
+        $entry_id = $data['entry_id'];
+        $quantity = (int)$request->quantity;
+
+        $entry = ProductEntry::where('id', $entry_id)->first();
+
+
+
+
+        if (!$entry) {
+            return response()->json([
+                'message' => 'Internal Server Error',
+            ], 500);
+            // Access the first matching product entry
+
+        }else {
+
+            $entry -> update(['quantity'=>$quantity]);
+
+            return response()->json([
+                'message' => 'Inventory updated',
+                'data' => $entry
+            ]);
+        }
+    }
+
     public function createProduct(StoreProductRequest $request)
     {
         // Validate the form data
@@ -153,21 +318,21 @@ alt="...">
             'productCategory' => $request->productCategory,
             'brand' => $request->brand,
             'price' => $request->price,
-            'color' => $request->color,
-            'size' => $request->size,
-            'quantity' => $request->quantity,
+//            'color' => $request->color,
+//            'size' => $request->size,
+//            'quantity' => $request->quantity,
             'images' => $request->file('images'),
 //                'discount' => 'required',
-            'description' => $request->description,
+//            'description' => $request->description,
         ];
 //        dd($validatedData);
         // Create a new product entry
-        $productEntry = new ProductEntry([
-            'quantity' => $validatedData['quantity'],
-            'color_id' => $validatedData['color'],
-            'size_id' => $validatedData['size'],
-        ]);
-        $productEntry->save();
+//        $productEntry = new ProductEntry([
+//            'quantity' => $validatedData['quantity'],
+//            'color_id' => $validatedData['color'],
+//            'size_id' => $validatedData['size'],
+//        ]);
+//        $productEntry->save();
 
         // Create a new product
         $product = new Product([
@@ -180,7 +345,7 @@ alt="...">
         ]);
 
         $product->save();
-        $product->productEntries()->attach($productEntry->id);
+//        $product->productEntries()->attach($productEntry->id);
 
         if ($request->hasFile('images')) {
             $images = $request->file('images');
@@ -194,7 +359,7 @@ alt="...">
                 $product->images()->attach($imageModel->id);
             }
         }
-        if ((!$product) && (!$productEntry)) {
+        if ((!$product)) {
             return response()->json([
                 'message' => 'Internal Server Error',
             ], 500);
@@ -227,9 +392,9 @@ alt="...">
             'productCategory' => $request->productCategory,
             'brand' => $request->brand,
             'price' => $request->price,
-            'color' => $request->color,
-            'size' => $request->size,
-            'quantity' => $request->quantity,
+//            'color' => $request->color,
+//            'size' => $request->size,
+//            'quantity' => $request->quantity,
             'images' => $request->file('images'),
             'imageInput'=> $request->imageInput,
 //                'discount' => 'required',
@@ -239,11 +404,11 @@ alt="...">
 
 
 //        dd($validatedData);
-        $product->productEntries()->update([
-            'quantity' => $validatedData['quantity'],
-            'color_id' => $validatedData['color'],
-            'size_id' => $validatedData['size'],
-        ]);
+//        $product->productEntries()->update([
+//            'quantity' => $validatedData['quantity'],
+//            'color_id' => $validatedData['color'],
+//            'size_id' => $validatedData['size'],
+//        ]);
 
 //        dd($product->productEntries);
         // Create a new product
@@ -286,13 +451,13 @@ alt="...">
         $product = Product::where('id', $request->id)->with(['productEntries', 'images'])->get()->first();
 
         // Delete the associated images
-        $images = $product->images;
-        foreach ($images as $image) {
-            // Delete the image file from storage (assuming you're using the default Laravel storage system)
-            Storage::delete('public/images/' . $image['image_name']);
-            // Delete the image record from the database
-            $image->delete();
-        }
+//        $images = $product->images;
+//        foreach ($images as $image) {
+//            // Delete the image file from storage (assuming you're using the default Laravel storage system)
+//            Storage::delete('public/images/' . $image['image_name']);
+//            // Delete the image record from the database
+//            $image->delete();
+//        }
 
         // Delete the associated product entries
         $productEntries = $product->productEntries;
@@ -301,9 +466,9 @@ alt="...">
         }
 
         // Delete the product itself
-        $product->productEntries()->detach();
-        $product->images()->detach();
-        $result=$product->delete();
+       $result = $product->productEntries()->detach();
+//        $product->images()->detach();
+//        $result=$product->delete();
         if ((!$result)) {
             return response()->json([
                 'message' => 'Internal Server Error',

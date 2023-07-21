@@ -31,13 +31,20 @@ class ProductListController extends Controller
                 foreach ($product->images as $image) {
                     $product['images'][] = $image;
                 }
-                foreach ($product->productEntries as $productEntry) {
+
+                if(empty($product->productEntries)) {
+                    foreach ($product->productEntries as $productEntry) {
 //                $entry = $productEntry;
-                    $size_id = $productEntry['size_id'];
-                    $color_id = $productEntry['color_id'];
+                        $size_id = $productEntry['size_id'];
+                        $color_id = $productEntry['color_id'];
+                    }
+                    $product['size'] = (Size::where('id', $size_id)->first())['size_value'];
+                    $product['color'] = (Color::where('id', $color_id)->first())['color_name'];
+
+                }else {
+                    $product['size'] = 'No size available';
+                    $product['color'] = 'No color available';
                 }
-                $product['size'] = (Size::where('id', $size_id)->first())['size_value'];
-                $product['color'] = (Color::where('id', $color_id)->first())['color_name'];
             }
             return view('welcome', compact('products', 'categories', 'sizes', 'colors', 'brands'));
     }
@@ -179,7 +186,7 @@ class ProductListController extends Controller
         foreach ($product->images as $image) {
             $product->images[] = $image;
         }
-
+        $quantity = 0;
         $availableSizes = [];
         $availableColors = [];
         foreach ($product->productEntries as $productEntry) {
@@ -193,7 +200,9 @@ class ProductListController extends Controller
             if ($color) {
                 $availableColors[] = $color;
             }
-            $quantity = $productEntry['quantity'];
+            if($quantity) {
+                $quantity = $productEntry['quantity'];
+            }
         }
 
         foreach ($product->images as $image){
@@ -201,6 +210,27 @@ class ProductListController extends Controller
         }
 
         return view('productInfo', compact('product', 'categories','quantity', 'availableSizes', 'availableColors', 'brands'));
+    }
+
+    public function checkInventoryOrder(Request $request){
+//        dd($request);
+        $id = $request->id;
+        $size = $request->size;
+        $color = $request->color;
+
+        $product = Product::where('id', $id)->with(['productEntries'])
+            ->whereHas('productEntries', function ($query) use ($size, $color) {
+                $query->where('size_id', $size)
+                    ->where('color_id', $color);
+            })
+            ->first();
+
+        if($product){
+            $quantity = $product->productEntries[0]->quantity;
+        }else{
+            $quantity = 0;
+        }
+        return response()->json(['data'=>$quantity]);
     }
 
     public function cartItems(Request $request)

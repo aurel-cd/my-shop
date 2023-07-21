@@ -79,6 +79,7 @@
         var productIDs = [];
 
 
+
         // Get the container element to display the product cards
         var productCardsContainer = $(".productCardsContainer");
         if (products.length == 0) {
